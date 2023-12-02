@@ -27,8 +27,26 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: ${{ runner.os }}-cargo-
       - name: cargo clippy
-        run: cargo clippy -- -D warnings
+        run: |-
+          {
+              printf "\`\`\`text\n"
+              printf "# Cargo Clippy\n"
+              cargo clippy -- -D warnings
+              printf "\`\`\`\n"
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
       - name: cargo fmt check
-        run: cargo fmt --check
+        run: |-
+          {
+              printf "\`\`\`text\n"
+              printf "# Cargo Fmt Check\n"
+              cargo fmt --check
+              printf "\`\`\`\n"
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
       - name: cargo test
-        run: cargo test
+        run: |-
+          {
+              printf "\`\`\`text\n"
+              printf "# Cargo Test\n"
+              cargo test
+              printf "\`\`\`\n"
+          } | tee -a "${GITHUB_STEP_SUMMARY}"
