@@ -21,3 +21,8 @@ data/inputs/*
 !data/inputs/.keep
 data/puzzles/*
 !data/puzzles/.keep
+
+# Don't save user secrets.
+.adventofcode.userid
+.adventofcode.year
+.adventofcode.session
