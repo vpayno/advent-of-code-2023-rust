@@ -22,4 +22,4 @@ jobs:
           year: ${{ secrets.AOC_YEAR }}
       - uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "update readme progress"
+          commit_message: "bot: update readme star progress"
