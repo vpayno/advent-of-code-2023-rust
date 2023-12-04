@@ -76,10 +76,12 @@ pub fn part_two_convert(input: &str) -> String {
         // println!("checking line '{}'\n", line);
 
         let mut i: usize = 0;
-        for (index, rune) in line.char_indices() {
+        for (_index, rune) in line.char_indices() {
+            /*
             if i > index {
                 continue;
             }
+            */
 
             if i >= line.len() {
                 break;
@@ -108,22 +110,25 @@ pub fn part_two_convert(input: &str) -> String {
             let key: String = match re_start.captures(&slice) {
                 Some(caps) => caps["wordy"].to_string(),
                 _ => {
-                    // println!("adding rune, {}, to new line, {}", rune, new_line);
-                    new_line += &rune.to_string();
+                    if rune.is_ascii_digit() {
+                        // println!("adding rune, {}, to new line, {}", rune, new_line);
+                        new_line += &rune.to_string();
+                        // println!("no wordy number matches at start of slice");
+                    }
                     i += 1;
-                    // println!("no wordy number matches at start of slice");
                     continue;
                 }
             };
             // println!("found number: {}", key);
 
-            let key_len = key.len();
+            // let key_len = key.len();
             let Some(numeric) = replacements.get(key.as_str()) else {
                 panic!("failed to get key {} from replacements hasmap", key);
             };
 
             new_line += &numeric.to_string();
-            i += key_len;
+            // i += key_len;
+            i += 1;
         }
 
         // println!("writing new line: {}", new_line);
@@ -171,12 +176,29 @@ mod tests {
         assert_eq!(
             result,
             r###"219
-8wo3
-abc123xyz
-x2ne34
+823
+123
+2134
 49872
-z1ight234
-7pqrst6teen"###
+18234
+76"###
+        );
+    }
+
+    #[test]
+    fn test_part_two_convert_dc() {
+        let result = part_two_convert(&advent_of_code::template::read_file_part(
+            "examples", DAY, 3,
+        ));
+        assert_eq!(
+            result,
+            r###"6189
+8282
+24377898
+1
+988
+16459
+519"###
         );
     }
 
@@ -188,5 +210,15 @@ z1ight234
             panic!("ERROR: test day01, part2 failed");
         };
         assert_eq!(result, 281);
+    }
+
+    #[test]
+    fn test_part_two_dc() {
+        let Some(result) = part_two(&advent_of_code::template::read_file_part(
+            "examples", DAY, 3,
+        )) else {
+            panic!("ERROR: test day01, part2 failed");
+        };
+        assert_eq!(result, 366);
     }
 }
