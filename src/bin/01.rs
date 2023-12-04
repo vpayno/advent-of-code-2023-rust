@@ -1,6 +1,8 @@
 advent_of_code::solution!(1);
 
+use itertools::Itertools;
 use regex::Regex;
+use std::collections::HashMap;
 
 pub fn part_one(input: &str) -> Option<u32> {
     // loop lines
@@ -52,8 +54,99 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(sum)
 }
 
+// replace word numbers to numbers from left to right
+pub fn part_two_convert(input: &str) -> String {
+    let mut replacements = HashMap::<&str, u32>::new();
+    replacements.insert("one", 1);
+    replacements.insert("two", 2);
+    replacements.insert("three", 3);
+    replacements.insert("four", 4);
+    replacements.insert("five", 5);
+    replacements.insert("six", 6);
+    replacements.insert("seven", 7);
+    replacements.insert("eight", 8);
+    replacements.insert("nine", 9);
+
+    let mut new_input: String = String::new();
+
+    for line in input.lines() {
+        let mut new_line: String = String::new();
+
+        // println!();
+        // println!("checking line '{}'\n", line);
+
+        let mut i: usize = 0;
+        for (index, rune) in line.char_indices() {
+            if i > index {
+                continue;
+            }
+
+            if i >= line.len() {
+                break;
+            }
+
+            let slice = line[i..].to_string();
+
+            // println!();
+            // println!("i: {}; new: {}; slice: {}", i, new_line, slice);
+
+            let mut words: String = String::new();
+            for (word, _number) in replacements.iter().sorted_by_key(|x| x.1) {
+                words += &word;
+                words += &"|";
+            }
+            // should be "one|two|....|nine"
+            words = words[0..words.len() - 1].to_string();
+
+            // println!("trying to replace ({}) numbers in {}\n", words, slice);
+
+            let re_str = r"^(?<wordy>".to_string() + &words + ")(?<rest>.*)$";
+            let Ok(re_start) = Regex::new(&re_str) else {
+                panic!("ERROR: bad regex for replaceing wordy number: {}", re_str);
+            };
+
+            let key: String = match re_start.captures(&slice) {
+                Some(caps) => caps["wordy"].to_string(),
+                _ => {
+                    // println!("adding rune, {}, to new line, {}", rune, new_line);
+                    new_line += &rune.to_string();
+                    i += 1;
+                    // println!("no wordy number matches at start of slice");
+                    continue;
+                }
+            };
+            // println!("found number: {}", key);
+
+            let key_len = key.len();
+            let Some(numeric) = replacements.get(key.as_str()) else {
+                panic!("failed to get key {} from replacements hasmap", key);
+            };
+
+            new_line += &numeric.to_string();
+            i += key_len;
+        }
+
+        // println!("writing new line: {}", new_line);
+        new_input += &new_line;
+        new_input += &'\n'.to_string();
+    }
+
+    new_input.truncate(new_input.len() - 1);
+    new_input
+}
+
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    // loop lines
+    // convert word number to number
+    //
+    // use part1 to get new num
+    //
+    // return new sum
+
+    let mut new_input = part_two_convert(input);
+    new_input += &'\n'.to_string();
+
+    part_one(&part_two_convert(&new_input))
 }
 
 #[cfg(test)]
@@ -71,8 +164,29 @@ mod tests {
     }
 
     #[test]
+    fn test_part_two_convert() {
+        let result = part_two_convert(&advent_of_code::template::read_file_part(
+            "examples", DAY, 2,
+        ));
+        assert_eq!(
+            result,
+            r###"219
+8wo3
+abc123xyz
+x2ne34
+49872
+z1ight234
+7pqrst6teen"###
+        );
+    }
+
+    #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let Some(result) = part_two(&advent_of_code::template::read_file_part(
+            "examples", DAY, 2,
+        )) else {
+            panic!("ERROR: test day01, part2 failed");
+        };
+        assert_eq!(result, 281);
     }
 }
