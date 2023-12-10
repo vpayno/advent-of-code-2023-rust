@@ -2,6 +2,7 @@ advent_of_code::solution!(2);
 
 use regex::Regex;
 
+use std::cmp;
 use std::collections::HashMap;
 
 pub fn part_one(input: &str) -> Option<u32> {
@@ -76,7 +77,56 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let mut cube_limits = HashMap::<&str, u32>::new();
+    cube_limits.insert("red", 12);
+    cube_limits.insert("green", 13);
+    cube_limits.insert("blue", 14);
+
+    let mut sum: u32 = 0;
+
+    for line in input.lines() {
+        // game_id(Game 1) : rolls(3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green)
+        let Some((_game_id, rolls)) = line.split_once(':') else {
+            panic!("ERROR: couldn't split string on : for line [{}]", line);
+        };
+
+        let Ok(re_rolls) = Regex::new(r"\b(\d+ (blue|red|green))\b") else {
+            panic!("ERROR: bad regex for second number");
+        };
+
+        let mut blue: u32 = 1;
+        let mut green: u32 = 1;
+        let mut red: u32 = 1;
+
+        for capture in re_rolls.find_iter(rolls) {
+            let roll = capture.as_str();
+            // println!("roll: {}", roll);
+
+            let Some((quantity, color)) = roll.split_once(' ') else {
+                panic!("ERROR: Couldn't separate the count and color in [{}]", roll);
+            };
+
+            let count = match quantity.parse::<i32>() {
+                Ok(n) => match u32::try_from(n) {
+                    Ok(n) => n,
+                    Err(_e) => panic!("ERROR: couldn't cube quantity from i32 to u32"),
+                },
+                Err(_e) => panic!("ERROR: couldn't decode cube quantity from {}", quantity),
+            };
+
+            match color {
+                "blue" => blue = cmp::max(blue, count),
+                "green" => green = cmp::max(green, count),
+                "red" => red = cmp::max(red, count),
+                _ => panic!("ERROR: I should have used an enum?"),
+            };
+        }
+
+        // println!("blue: {}, green: {}, red: {}", blue, green, red);
+        sum += blue * green * red;
+    }
+
+    Some(sum)
 }
 
 #[cfg(test)]
@@ -100,6 +150,6 @@ mod tests {
         )) else {
             panic!("ERROR: no value returned");
         };
-        assert_eq!(result, 0);
+        assert_eq!(result, 2286);
     }
 }
