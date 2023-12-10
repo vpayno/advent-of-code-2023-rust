@@ -203,7 +203,7 @@ mod tests {
     }
 
     #[test]
-    fn test_part_two() {
+    fn test_day01_part_two() {
         let Some(result) = part_two(&advent_of_code::template::read_file_part(
             "examples", DAY, 2,
         )) else {
@@ -213,7 +213,7 @@ mod tests {
     }
 
     #[test]
-    fn test_part_two_dc() {
+    fn test_day01_part_two_dc() {
         let Some(result) = part_two(&advent_of_code::template::read_file_part(
             "examples", DAY, 3,
         )) else {
